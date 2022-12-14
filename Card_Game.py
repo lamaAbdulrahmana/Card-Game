@@ -1,5 +1,5 @@
 import random
-
+from unicards import unicard 
 class IncorrectChoiceError(Exception):
     "Please enter a correct choice from the menu."
     pass
@@ -8,32 +8,31 @@ class IncorrectPlayersNumberError(Exception):
     pass
 class Card(object):
     
-    def __init__(self,value,suit,score):
+    def __init__(self,value,suit,card_score,suit_score):
         self.value = value
         self.suit = suit
-        self.score = score
+        self.card_score = card_score
+        self.suit_score = suit_score
         
     def __str__(self):
-        print('{} {}'.format(self.value, self.suit))
+        print('{} {}'.format(self.value, self.suit,self.card_score,self.suit_score))
         
     def __lt__(self, c2):
-        if self.score < c2.score:
+        if self.card_score < c2.card_score:
             return True
-        if self.score == c2.score:
-            if self.suit < c2.suit:
-                return True
-            else:
-                return False
+        else:
+            if self.card_score == c2.card_score:
+                if self.suit_score < c2.suit_score:
+                    return True
         return False
 
     def __gt__(self, c2):
-        if self.score > c2.score:
+        if self.card_score > c2.card_score:
             return True
-        if self.score == c2.score:
-            if self.suit > c2.suit:
-                return True
-            else:
-                return False
+        else:
+            if self.card_score == c2.card_score:
+                if self.suit_score > c2.suit_score:
+                    return True
         return False
      
         
@@ -44,11 +43,13 @@ class Deck(object):
         self.set_up()
     
     def set_up(self):
-        for s in ['♠','♥','♦','♣', ]: # Alphabetical order: clubs (lowest), followed by diamonds, hearts, and spades (highest). 
-            score = 13
-            for v in ['2','3','4','5','6','7','8','9','10','J','Q','K','A']:
-                self.cards.append(Card(v,s,score))
-                score-=1
+        suit_score = 4
+        for s in ['♠','♥','♦','♣']: # Alphabetical order: clubs (lowest), followed by diamonds, hearts, and spades (highest). 
+            card_score = 13
+            for v in ['A','K','Q','J','10','9','8','7','6','5','4','3','2']:
+                self.cards.append(Card(v,s,card_score,suit_score))
+                card_score-=1
+            suit_score-=1
         self.shuffle()
 
     def __str__(self):
@@ -96,14 +97,14 @@ class Game(object):
 def main():
     players = []
     print('Welcome to the card game ♠♥♦♣ created by lama')
- 
-main()   
-d = Deck()
+   
 
+d = Deck()
 p1 = Player('Lama')
 p2 = Player('Maha')
 p3 = Player('Dana')
 p4 = Player('Nouf')
+   
 
 players = [p1,p2,p3,p4]
 
@@ -121,7 +122,7 @@ for round in range(int(52/len(players))):
         card.__str__()
     maxi = max(played_cards).__str__()
     print('max card is {}'.format(maxi))
-    
+
 # d.shuffle()
 # d.__str__()
 # print(len(d.cards))
