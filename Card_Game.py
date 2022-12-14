@@ -3,6 +3,9 @@ import random
 class IncorrectChoiceError(Exception):
     "Please enter a correct choice from the menu."
     pass
+class IncorrectPlayersNumberError(Exception):
+    "players must be at least 2"
+    pass
 class Card(object):
     
     def __init__(self,value,suit,score):
@@ -11,7 +14,28 @@ class Card(object):
         self.score = score
         
     def __str__(self):
-        print('{} of {}'.format(self.value, self.suit))
+        print('{} {}'.format(self.value, self.suit))
+        
+    def __lt__(self, c2):
+        if self.score < c2.score:
+            return True
+        if self.score == c2.score:
+            if self.suit < c2.suit:
+                return True
+            else:
+                return False
+        return False
+
+    def __gt__(self, c2):
+        if self.score > c2.score:
+            return True
+        if self.score == c2.score:
+            if self.suit > c2.suit:
+                return True
+            else:
+                return False
+        return False
+     
         
 class Deck(object):
     
@@ -20,23 +44,24 @@ class Deck(object):
         self.set_up()
     
     def set_up(self):
-        i = 4
-        for s in ['spades ♠','hearts ♥','diamonds ♦','clubs ♣' ]: # Alphabetical order: clubs (lowest), followed by diamonds, hearts, and spades (highest). 
-            score = 13*i
-            for v in ['ace','king','queen','jack','2','3','4','5','6','7','8','9','10']:
+        for s in ['♠','♥','♦','♣', ]: # Alphabetical order: clubs (lowest), followed by diamonds, hearts, and spades (highest). 
+            score = 13
+            for v in ['2','3','4','5','6','7','8','9','10','J','Q','K','A']:
                 self.cards.append(Card(v,s,score))
                 score-=1
-            i-=1
-    
+        self.shuffle()
+
     def __str__(self):
         for card in self.cards:
-            card.__str__()  
+            card.__str__()
+    
+    def __len__(self):
+        return len(self.cards)  
     
     def shuffle(self):
         random.shuffle(self.cards)
         
     def draw(self):
-        self.shuffle()
         return self.cards.pop()
         
 
@@ -51,13 +76,13 @@ class Player(object):
         print('My name is {}, I have {} wins and my cards are:'.format(self.name,self.wins))
         for card in self.cards:
             card.__str__()
+        
+    def add_card(self,deck):
+        return self.cards.append(deck.draw())
     
-    def draw_card(self,deck):
-        self.cards.append(deck.draw())
-        return self # return self so you can always call method without an object ex: instead of obj.func() then obj.func() i can do obj.func().func() instead
-    
-    def discard_card(self):
-        return self.cards.pop()
+    def round_winner(self):
+        self.wins += 1 
+
  
  
 class Game(object):
@@ -65,99 +90,38 @@ class Game(object):
     def __init__(self,deck,players):
         self.deck = deck
         self.players = players
-    
-    # def turn_winner(self):
-    #     max = []
-    #     for player in self.players:
-    #         for card in player.cards:
-    #             max.append(card.score)
         
-    #     return (self.players.)
-    
-    def play_game(self,player):
-        players_turn = []
-        print('''It's {} turn, Please enter a choice from the menu:
-                1.draw
-                2.quit '''.format(player.name))
-        choice = 1
-        while(len(self.deck) > 0):
-            while(choice != 2):
-                try:
-                    choice = int(input('Choice: '))
-                    if choice > 2:
-                        raise IncorrectChoiceError
-                    players_turn.append(player.draw_card(self.deck))
-                except ValueError:
-                    print('Please enter a valid intger choice.')
-                    continue
-                except IncorrectChoiceError:
-                    print("Please enter a correct choice from the menu.")
-                    continue
-            self.turn_winner(players_turn)
-        print('The war is over!')    
-    
-    def turn_winner(players_card): # get the player with highest score in a turn
-            return max(players_card)
-    
-    def play_game(self):
-        
-        while(len(self.deck.cards) > 0):
-            for player in self.players:
-                print('''It's {} turn, Please enter a choice from the menu:
-                1.draw
-                2.quit '''.format(player.name))
-                choice = 5
-                while(choice != 2):
-                    try:
-                        choice = int(input('Choice: '))
-                        if choice > 2:
-                            raise IncorrectChoiceError
-                        player.draw_card(self.deck)
-                    except ValueError:
-                        print('Please enter a valid intger choice.')
-                        continue
-                    except IncorrectChoiceError:
-                        print("Please enter a correct choice from the menu.")
-                        continue
-            # calc winner    
-        print("The war is over") # end of while(len(self.deck.cards) > 0) loop       
-
-
-
+            
 
 def main():
     players = []
-    try:
-        players_number = int(input('''Welcome to the card game ♠♥♦♣ created by lama
-                
-                Please enter the players number: '''))
-    except ValueError:
-        print("Please enter a valid intger")
-        players_number = int(input('Players number: '))
-
-    for num in players_number:
-        try:
-            name = str(input('Player #{} please enter your name: '.format(num)))
-            player = Player(name)
-            players.append(player)
-        except ValueError:
-            print("Please enter a valid name")
-            name = int(input('Players name: '))
-            player = Player(name)
-            players.append(player)
-    
-    deck = Deck() # create new deck
-    game = Game(deck,players) # create new game with players and deck
-    
-    while(deck.cards > 0):
-        for player in game.players:
-            game.play_game(player)
-    
-    print('The war is over!')    
- 
+    print('Welcome to the card game ♠♥♦♣ created by lama')
  
 main()   
-# d = Deck() 
+d = Deck()
+
+p1 = Player('Lama')
+p2 = Player('Maha')
+p3 = Player('Dana')
+p4 = Player('Nouf')
+
+players = [p1,p2,p3,p4]
+
+while len(d.cards)>0:
+    for player in players:
+        player.add_card(d) 
+
+    
+for round in range(int(52/len(players))):
+    played_cards = []
+    for player in players:
+        played_cards.append(player.cards.pop())
+    
+    for card in played_cards:
+        card.__str__()
+    maxi = max(played_cards).__str__()
+    print('max card is {}'.format(maxi))
+    
 # d.shuffle()
 # d.__str__()
 # print(len(d.cards))
