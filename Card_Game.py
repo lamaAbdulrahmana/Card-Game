@@ -1,5 +1,6 @@
 import random
-from unicards import unicard 
+from operator import attrgetter
+
 class IncorrectChoiceError(Exception):
     "Please enter a correct choice from the menu."
     pass
@@ -74,9 +75,7 @@ class Player(object):
         self.wins = 0
     
     def __str__(self):
-        print('My name is {}, I have {} wins and my cards are:'.format(self.name,self.wins))
-        for card in self.cards:
-            card.__str__()
+        print('My name is {}, I have {} wins'.format(self.name,self.wins))
         
     def add_card(self,deck):
         return self.cards.append(deck.draw())
@@ -117,11 +116,14 @@ for round in range(int(52/len(players))):
     played_cards = []
     for player in players:
         played_cards.append(player.cards.pop())
+    winner_card = max(played_cards)
+    round_winner = players[played_cards.index(winner_card)]
+    round_winner.round_winner()
+    print('{} won round # {}'.format(round_winner.name,round+1))
+
     
-    for card in played_cards:
-        card.__str__()
-    maxi = max(played_cards).__str__()
-    print('max card is {}'.format(maxi))
+winner = max(players, key=attrgetter('wins'))
+print('The winner is {} with {} wins HORAY'.format(winner.name, winner.wins))    
 
 # d.shuffle()
 # d.__str__()
