@@ -95,19 +95,44 @@ class Game(object):
     
     def play_game(self):
         print('Welcome to the card game ♠♥♦♣ created by lama')
-        players_numbers = int(input('Enter numbers of players: '))
+        while True:
+            try:
+                players_numbers = int(input('Enter numbers of players: '))
+                if players_numbers <= 1:
+                    raise IncorrectPlayersNumberError()
+                break
+            except ValueError:
+                print('Please enter an intger')
+            except IncorrectPlayersNumberError:
+                print('Please enter a number more than 2, because players must be at least 2')
         players = []
         for number in range(players_numbers):
-            name = str(input('Please enter player {} name: '.format(number+1)))
+            while True:
+                try:
+                    name = str(input('Please enter player {} name: '.format(number+1)))
+                    break
+                except ValueError:
+                    print('Please enter a valid name')
             p = Player(name)
             players.append(p)
-        choice = 1
+            choice = 1
         for round in range(int(52/len(players))):
             if (choice == 1):
                 print('''Choose an option to play or quit:
                 1. draw card
                 2. quit game''')
-                choice = int(input('Choose an option: '))
+                while True:
+                    try:
+                        choice = int(input('Choose an option: '))
+                        if (choice > 2):
+                            raise IncorrectChoiceError()
+                        break
+                    except ValueError:
+                        print('Please enter an intger')
+                    except IncorrectChoiceError:
+                        print('Please choose a number from the menu')
+                if choice == 2:
+                    break
                 for player in players:
                     player.add_card(self.deck)
                     print('{} has pulled {}'.format(player.name,player.cards[0].__str__()))
@@ -121,6 +146,7 @@ class Game(object):
             else:
                 print('you choose to quit the game bye')
                 break
+        print('The war is over!')
         winner = max(players, key=attrgetter('wins'))
         print('The winner is {} with {} wins HORAY'.format(winner.name, winner.wins)) 
         
@@ -128,9 +154,3 @@ class Game(object):
 deck = Deck()       
 game = Game(deck)
 game.play_game()              
-# d.shuffle()
-# d.__str__()
-# print(len(d.cards))
-# p = Player('Lama')
-# p.draw_card(d).draw_card(d).draw_card(d)
-# p.__str__()
